@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx.xsd"
+
+	default-init-method="init">
+
+	<context:component-scan base-package="com.zkr.spring.*"  use-default-filters="true">
+		<!-- <context:include-filter type="regex" expression=".*.spring.*"/> -->
+		<!-- <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/> -->
+	</context:component-scan> 
+
+	<context:annotation-config />
+	<!-- 导入并且合并xml文件 -->
+	<!-- <import resource="classpath:daos.xml"/> <import resource="classpath:services.xml"/> -->
+
+	<bean id="clientService" class="com.zkr.spring.examples.ClientService"
+		factory-method="createInstance" />
+
+	<bean id="serviceLocator" class="com.zkr.spring.factory.DefaultServiceLocator">
+		<!-- inject any dependencies required by this locator bean -->
+	</bean>
+
+	<bean id="userService" factory-bean="serviceLocator"
+		factory-method="createClientServiceInstance" />
+
+	<bean id="exampleBean" class="com.zkr.spring.examples.ExampleBean">
+		<constructor-arg type="int" value="7500000"></constructor-arg>
+		<constructor-arg type="java.lang.String" value="42"></constructor-arg>
+	</bean>
+
+	<bean id="moreComplexObject" class="com.zkr.spring.examples.ComplexObject">
+		<!-- results in a setAdminEmails(java.util.Properties) call -->
+		<property name="adminEmails">
+			<props>
+				<prop key="administrator">administrator@example.org</prop>
+				<prop key="support">support@example.org</prop>
+				<prop key="development">development@example.org</prop>
+			</props>
+		</property>
+		<!-- results in a setSomeList(java.util.List) call -->
+		<property name="someList">
+			<list>
+				<value>a list element followed by a reference</value>
+
+			</list>
+		</property>
+		<!-- results in a setSomeMap(java.util.Map) call -->
+		<property name="someMap">
+			<map>
+				<entry key="an entry" value="just some string" />
+				<!-- <entry key ="a ref" value-ref="myDataSource"/> -->
+			</map>
+		</property>
+		<!-- results in a setSomeSet(java.util.Set) call -->
+		<property name="someSet">
+			<set>
+				<value>just some string</value>
+				<!-- <ref bean="myDataSource" /> -->
+			</set>
+		</property>
+	</bean>
+
+	<!-- -->
+	<bean id="exampleInitBean" class="com.zkr.spring.examples.ExampleInitBean"
+		init-method="init" />
+
+	<!-- <bean id="lifecycleProcessor" class="org.springframework.context.support.DefaultLifecycleProcessor"> 
+		timeout value in milliseconds <property name="timeoutPerShutdownPhase" value="10000" 
+		/> </bean> -->
+<!-- 
+	<bean id="inheritedTestBean" abstract="true"
+		class="com.zkr.spring.examples.TestBean">
+		<property name="name" value="parent" />
+		<property name="age" value="1" />
+	</bean> -->
+
+	<!-- <bean id="inheritsWithDifferentClass" class="com.zkr.spring.examples.DerivedTestBean"
+		parent="inheritedTestBean" init-method="initialize">
+		<property name="name" value="override" />
+		the age property value of 1 will be inherited from parent
+	</bean> -->
+
+	<!-- <bean class="com.zkr.spring.examples.MyProcessor"></bean> -->
+
+
+	<!-- 加载资源文件 -->
+	<!-- <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"> 
+		<property name="locations" value="classpath:jdbc.properties" /> </bean> -->
+	<context:property-placeholder location="classpath:jdbc.properties" />
+
+	<bean id="dataSource" destroy-method="close"
+		class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<!-- <bean id="factoryBeanService" class="com.zkr.spring.service.impl.FactoryBeanServiceImpl"></bean> -->
+
+	<bean id="stu" class="com.zkr.spring.pojo.Student">
+		<property name="name" value="join"></property>
+	</bean>
+	
+	
+
+	<bean id="accountDao" class="com.zkr.spring.dao.AccountDao"></bean>
+	<bean id="userDao" class="com.zkr.spring.dao.UserDao"></bean>
+
+	<bean id="accountService" class="com.zkr.spring.service.impl.AccountServiceImpl"></bean>
+
+	<bean id="beanInvoke" class="com.zkr.spring.examples.BeanInvoke"></bean>
+	
+	<bean id="beanInvoke2" class="com.zkr.spring.examples.BeanInvoke"></bean>
+
+	<bean class="com.zkr.spring.service.impl.SimpleMovieCatalog">
+		<qualifier type="com.zkr.spring.annotation.Genre" value="Comedy" />
+	</bean>
+
+	<bean class="com.zkr.spring.service.impl.SimpleMovieCatalog">
+		<qualifier type="com.zkr.spring.annotation.Genre" value="Action" />
+	</bean>
+	
+	<bean id="movieRecommender" class="com.zkr.spring.examples.MovieRecommender" />
+	
+	<bean id="movieRecommender2" class="com.zkr.spring.examples.MovieRecommender2" />
+	
+	<!-- 使用自定义注解    -->
+	<bean class="com.zkr.spring.service.impl.SimpleMovieCatalog">
+        <qualifier type="com.zkr.spring.annotation.MovieQualifier">
+            <attribute key="format" value="VHS"/>
+            <attribute key="genre" value="Action"/>
+        </qualifier>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean class="com.zkr.spring.service.impl.SimpleMovieCatalog">
+        <qualifier type="com.zkr.spring.annotation.MovieQualifier">
+            <attribute key="format" value="VHS"/>
+            <attribute key="genre" value="Comedy"/>
+        </qualifier>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean class="com.zkr.spring.service.impl.SimpleMovieCatalog">
+        <meta key="format" value="DVD"/>
+        <meta key="genre" value="Action"/>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+
+    <bean class="com.zkr.spring.service.impl.SimpleMovieCatalog">
+        <meta key="format" value="BLURAY"/>
+        <meta key="genre" value="Comedy"/>
+        <!-- inject any dependencies required by this bean -->
+    </bean>
+    
+    
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+    	<property name="basenames">
+    	   <list>
+    	     <value>format</value>
+    	     <value>exceptions</value>
+    	     <value>windows</value>
+    	   </list>
+    	</property>
+    </bean>
+    
+    
+   
+	
+</beans>
